@@ -1,23 +1,24 @@
-// import
-// konfigurera server
 import express, { Express, NextFunction, Request, Response } from 'express'
-import { router as cookieRouter } from './routes/cookies.js'
+import { router} from './routes/users.js'
+import { MongoClient,Db, Collection } from "mongodb";
+
+
 const app: Express = express()
 const port = 1339
 
 // middleware
 // route handlers
 app.use('/', (req: Request, res: Response, next: NextFunction) => {
-	// TODO: add body middleware and print it
-	console.log(`${req.method}  ${req.url}`, req.body)
+	// Lägg till body
+	// console.log(`${req.method}  ${req.url}`, req.body)
 	next()
 })
 
-app.use('/cookies', cookieRouter)
+app.use('/user', router)
 
 
 // starta servern
 app.listen(port, () => {
-	console.log('SERVER is listening on port ' + port)
+	console.log('SERVER is listening on port ' + port)	
 })
 
