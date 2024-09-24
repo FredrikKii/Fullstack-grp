@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-   "build": "tsc",
+    "build": "tsc",
     "run": "node dist/server.js"
   },
   "keywords": [],
