@@ -19,7 +19,6 @@ async function getAllUsers(): Promise<WithId<User>[]> {
     const client: MongoClient = await MongoClient.connect(con);
     const db: Db = await client.db("webshop");
     const col: Collection<User> = db.collection<User>("user");
-
     const result: WithId<User>[] = await col.find({}).toArray();
 	
     return result;
