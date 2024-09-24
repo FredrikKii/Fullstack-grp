@@ -9,5 +9,4 @@ export const router: Router = express.Router();
 router.get("/", async (req: Request, res: Response<WithId<User>[]>) => {
     const allUsers: WithId<User>[] = await getAllUsers();
     res.send(allUsers);
-	
 });
