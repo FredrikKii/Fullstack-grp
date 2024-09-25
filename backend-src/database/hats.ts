@@ -21,5 +21,21 @@ async function getAllHats(): Promise<WithId<Hat>[]> {
 
     return result;
 }
+async function getOneHat(name: string): Promise<WithId<Hat> | null> {
+    if (!con) {
+        throw new Error("No connection string");
+    }
 
-export { getAllHats };
+    const client = await MongoClient.connect(con);
+    try {
+        const db = client.db("webshop");
+        const col = db.collection<Hat>("hats");
+
+        // Query using the name
+        return await col.findOne({ name: name });
+    } finally {
+        await client.close();
+    }
+}
+
+export { getAllHats, getOneHat };
