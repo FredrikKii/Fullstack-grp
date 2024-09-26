@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const con: string | undefined = process.env.CONNECTION_STRING;
-const test: string | undefined = process.env.TEST;
+// const test: string | undefined = process.env.TEST;
 
 
 async function connectToDatabaseFindHats(): Promise<Collection<Hat>> {
@@ -25,6 +25,7 @@ async function getAllHats(): Promise<WithId<Hat>[]> {
     const result: WithId<Hat>[] = await col.find({}).toArray();
     return result;
 }
+
 // Hitta en hatt
 async function getOneHat(name: string): Promise<WithId<Hat> | null> {
     const col = await connectToDatabaseFindHats(); 

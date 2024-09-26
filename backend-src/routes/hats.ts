@@ -13,11 +13,8 @@ router.get("/", async (req: Request, res: Response<WithId<Hat>[]>) => {
 
 // Hämtar ut en hatt, använd hattnamnet .
 router.get("/:name", async (req: Request, res: Response<WithId<Hat> | null>) => {
-    
     const name: string = req.params.name;  
     console.log("Name is: " + name);
-
-
     try {
         const hat = await getOneHat(name);  
         if (hat) {
