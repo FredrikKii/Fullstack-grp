@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from "express";
 import { Hat } from "../models/hats.js";
-import { getAllHats, getOneHat, insertOneHat } from "../database/hats.js";
-import { WithId } from "mongodb";
+import { getAllHats, getOneHat, insertOneHat, deleteOneHat } from "../database/hats.js";
+import { ObjectId, WithId } from "mongodb";
 
 export const router: Router = express.Router();
 
@@ -12,20 +12,18 @@ router.get("/", async (req: Request, res: Response<WithId<Hat>[]>) => {
 });
 
 // Hämtar ut en hatt, använd hattnamnet .
-router.get("/:name", async (req: Request, res: Response<WithId<Hat> | null>) => {
-    
-    const name: string = req.params.name;  
-    console.log("Name is: " + name);
-
-
+router.get("/:id", async (req: Request, res: Response<WithId<Hat> | null>) => {
+    const id: string = req.params.id;  
+    console.log("ID is: " + id);
     try {
-        const hat = await getOneHat(name);  
+        const hat = await getOneHat(id);  
         if (hat) {
             res.send(hat); 
         } else {
             res.sendStatus(404);  
         }
     } catch (error) {
+        console.error(error); 
         res.sendStatus(500);  
     }
 });
@@ -33,8 +31,6 @@ router.get("/:name", async (req: Request, res: Response<WithId<Hat> | null>) => 
 // Lägger till hatt
 router.post("/", async (req: Request, res: Response) => {
     const newHat: Hat = req.body;     
-
-
     console.log("New hat data received:", newHat);
 
     try {
@@ -47,5 +43,28 @@ router.post("/", async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error inserrting:", error);
         res.sendStatus(500);
+    }
+});
+
+// Tar bort hatt
+router.delete("/:id", async (req: Request, res: Response) => {
+    const hatId: string = req.params.id; 
+    console.log("Request to delete hat with ID:", hatId);
+
+    try {
+        if (!ObjectId.isValid(hatId)) {
+            return res.sendStatus(400); 
+        }
+
+        const deletedId = await deleteOneHat(new ObjectId(hatId)); 
+
+        if (deletedId) {
+            res.sendStatus(204); 
+        } else {
+            res.sendStatus(404); 
+        }
+    } catch (error) {
+        console.error("Error deleting hat:", error);
+        res.sendStatus(500); 
     }
 });

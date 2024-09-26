@@ -1,11 +1,11 @@
-import { MongoClient, Db, Collection, WithId, ObjectId, InsertOneResult } from "mongodb";
+import { MongoClient, Db, Collection, WithId, ObjectId, InsertOneResult, DeleteResult } from "mongodb";
 import { Hat } from "../models/hats.js";
 // Vet inte varför, men var tvungen att ha detta för att det skulle fungera.
 import dotenv from "dotenv";
 dotenv.config();
 
 const con: string | undefined = process.env.CONNECTION_STRING;
-const test: string | undefined = process.env.TEST;
+// const test: string | undefined = process.env.TEST;
 
 
 async function connectToDatabaseFindHats(): Promise<Collection<Hat>> {
@@ -25,10 +25,11 @@ async function getAllHats(): Promise<WithId<Hat>[]> {
     const result: WithId<Hat>[] = await col.find({}).toArray();
     return result;
 }
+
 // Hitta en hatt
-async function getOneHat(name: string): Promise<WithId<Hat> | null> {
+async function getOneHat(id: string): Promise<WithId<Hat> | null> {
     const col = await connectToDatabaseFindHats(); 
-    const result: WithId<Hat> | null = await col.findOne({name: name})
+    const result: WithId<Hat> | null = await col.findOne({ _id: new ObjectId(id) });
     return result;
 }
 
@@ -43,4 +44,14 @@ async function insertOneHat(hat: Hat): Promise<ObjectId | null> {
     return result.insertedId;
 }
 
-export { connectToDatabaseFindHats, getAllHats, getOneHat, insertOneHat };
+// Ta bort en hatt
+async function deleteOneHat(hatId: ObjectId): Promise<ObjectId | null> {
+    const col = await connectToDatabaseFindHats(); 
+    const result: DeleteResult = await col.deleteOne({ _id: hatId }); 
+
+    return hatId; 
+}
+
+export { connectToDatabaseFindHats, getAllHats, getOneHat, insertOneHat, deleteOneHat
+
+ };
