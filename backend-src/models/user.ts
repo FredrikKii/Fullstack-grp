@@ -1,5 +1,7 @@
+import { ObjectId } from "mongodb";
+
 export interface User {
-    _id: number;  
+    _id: ObjectId;
     name: string;
     isAdmin: boolean;
 }
