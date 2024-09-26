@@ -1,64 +1,70 @@
 import express, { Request, Response, Router } from "express";
 import { User } from "../models/user.js";
-import { getAllUsers, createUser, updateUser, deleteUser, searchUsers, getUserById } from "../database/users.js"; 
-import { WithId } from "mongodb";
+import { getAllUsers, getOneUser, insertOneUser, deleteOneUser } from "../database/users.js";
+import { ObjectId, WithId } from "mongodb";
 
 export const router: Router = express.Router();
 
-// GET alla användare
+// GET x2, POST, PUT, DELETE
 router.get("/", async (req: Request, res: Response<WithId<User>[]>) => {
     const allUsers: WithId<User>[] = await getAllUsers();
-    res.status(200).json(allUsers);
+    res.send(allUsers);
 });
 
-// GET specifik användare
-router.get("/:_id", async (req: Request, res: Response) => {
-    
-    const user: WithId<User> | null = await getUserById(userId);
-	const userId = req.params.id = new ObjectId(hatId); // Convert string to ObjectId
-    if (user) {
-        res.status(200).json(user);
-    } else {
-        res.status(404).send("User not found");
+// Hämtar ut en user, använd user-id .
+router.get("/:id", async (req: Request, res: Response<WithId<User> | null>) => {
+    const id: string = req.params.id;  
+    console.log("ID is: " + id);
+    try {
+        const user = await getOneUser(id);  
+        if (user) {
+            res.send(user); 
+        } else {
+            res.sendStatus(404);  
+        }
+    } catch (error) {
+        console.error(error); 
+        res.sendStatus(500);  
     }
 });
 
-// POST skapa ny användare
+// Lägger till user
 router.post("/", async (req: Request, res: Response) => {
-    const newUser: User = req.body;
-    const createdUser: User = await createUser(newUser);
-    res.status(201).json(createdUser);
-});
+    const newUser: User = req.body;     
+    console.log("New user data received:", newUser);
 
-// PUT uppdatera användare
-router.put("/:_id", async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.id); // Omvandla till number
-    const updatedUser: User = req.body;
-    const result = await updateUser(userId, updatedUser);
-    if (result.modifiedCount > 0) {
-        res.status(200).send("User updated successfully");
-    } else {
-        res.status(404).send("User not found");
+    try {
+        const insertedId = await insertOneUser(newUser); 
+        if (insertedId) {
+            res.status(201).send({ id: insertedId }); 
+        } else {
+            res.sendStatus(400);  
+        }
+    } catch (error) {
+        console.error("Error inserrting:", error);
+        res.sendStatus(500);
     }
 });
 
-// DELETE ta bort användare
+// Tar bort user
 router.delete("/:id", async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.id); // Omvandla till number
-    const result = await deleteUser(userId);
-    if (result.deletedCount > 0) {
-        res.status(200).send("User deleted successfully");
-    } else {
-        res.status(404).send("User not found");
-    }
-});
+    const userId: string = req.params.id; 
+    console.log("Request to delete hat with ID:", userId);
 
-// GET sökning av användare
-router.get("/search", async (req: Request, res: Response) => {
-    const query = req.query.q as string;
-    if (!query) {
-        return res.status(400).send("Search query cannot be empty");
+    try {
+        if (!ObjectId.isValid(userId)) {
+            return res.sendStatus(400); 
+        }
+
+        const deletedId = await deleteOneUser(new ObjectId(userId)); 
+
+        if (deletedId) {
+            res.sendStatus(204); 
+        } else {
+            res.sendStatus(404); 
+        }
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.sendStatus(500); 
     }
-    const users = await searchUsers(query);
-    res.status(200).json(users);
 });
