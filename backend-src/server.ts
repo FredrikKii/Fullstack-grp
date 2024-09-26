@@ -15,8 +15,8 @@ app.use("/", (req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-app.use("/user", router);
-app.use("/hats", hatsRouter);
+app.use("/api/users", router);
+app.use("/api/hats", hatsRouter);
 
 // starta servern
 app.listen(port, () => {
