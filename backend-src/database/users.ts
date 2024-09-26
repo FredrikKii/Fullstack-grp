@@ -9,8 +9,6 @@ const test: string | undefined = process.env.TEST
 
 console.log(test);
 
-
-
 async function getAllUsers(): Promise<WithId<User>[]> {
     if (!con) {
         console.log("No connection string, check your .env file!");
@@ -20,7 +18,7 @@ async function getAllUsers(): Promise<WithId<User>[]> {
     const db: Db = await client.db("webshop");
     const col: Collection<User> = db.collection<User>("user");
     const result: WithId<User>[] = await col.find({}).toArray();
-	
+
     return result;
 }
 
