@@ -1,5 +1,6 @@
+import { ObjectId } from "mongodb";
+
 export interface Hat {
-    id: number;
     name: string;
     price: number;
     image: string;

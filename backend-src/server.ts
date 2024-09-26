@@ -4,6 +4,7 @@ import { router as hatsRouter } from "./routes/hats.js";
 import { MongoClient, Db, Collection } from "mongodb";
 
 const app: Express = express();
+app.use(express.json());
 const port = 2000;
 
 // middleware
