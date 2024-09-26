@@ -12,9 +12,10 @@ router.get("/", async (req: Request, res: Response<WithId<User>[]>) => {
 });
 
 // GET specifik användare
-router.get("/:id", async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.id); // Omvandla till number
+router.get("/:_id", async (req: Request, res: Response) => {
+    
     const user: WithId<User> | null = await getUserById(userId);
+	const userId = req.params.id = new ObjectId(hatId); // Convert string to ObjectId
     if (user) {
         res.status(200).json(user);
     } else {
@@ -30,7 +31,7 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // PUT uppdatera användare
-router.put("/:id", async (req: Request, res: Response) => {
+router.put("/:_id", async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id); // Omvandla till number
     const updatedUser: User = req.body;
     const result = await updateUser(userId, updatedUser);
