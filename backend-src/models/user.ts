@@ -1,6 +1,5 @@
-
 export interface User {
-	_id: number;
-	name: string;
-	isAdmin: boolean;
+    _id: number;  
+    name: string;
+    isAdmin: boolean;
 }
