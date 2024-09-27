@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from "express";
-import { Hat } from "../models/hats.js";
+import { Hat } from "../models/hat-model.js";
 import {
     getAllHats,
     getOneHat,

@@ -8,7 +8,7 @@ import {
     DeleteResult,
     UpdateResult,
 } from "mongodb";
-import { Hat } from "../models/hats.js";
+import { Hat } from "../models/hat-model.js";
 // Vet inte varför, men var tvungen att ha detta för att det skulle fungera.
 import dotenv from "dotenv";
 dotenv.config();
