@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from "express";
 import { User } from "../models/user.js";
-import { getAllUsers, getOneUser, insertOneUser, deleteOneUser } from "../database/users.js";
+import { getAllUsers, getOneUser, insertOneUser, deleteOneUser, updateOneUser } from "../database/users.js";
 import { ObjectId, WithId } from "mongodb";
 
 export const router: Router = express.Router();
@@ -66,5 +66,28 @@ router.delete("/:id", async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error deleting user:", error);
         res.sendStatus(500); 
+    }
+});
+
+// Uppdaterar en befintlig user
+router.put("/:id", async (req: Request, res: Response) => {
+    // Detta är vad användaren matar in i body:
+    const updatedUser: User = req.body;
+
+    // Detta är vilken användaren vill ändra
+    const id: string = req.params.id;
+
+    console.log("Updated user data received:", updatedUser);
+
+    try {
+        const insertedId = await updateOneUser(id, updatedUser);
+        if (insertedId) {
+            res.status(201).send({ id: insertedId });
+        } else {
+            res.sendStatus(400);
+        }
+    } catch (error) {
+        console.error("Error inserrting:", error);
+        res.sendStatus(500);
     }
 });

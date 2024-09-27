@@ -1,4 +1,4 @@
-import { MongoClient, Db, Collection, WithId, ObjectId, InsertOneResult, DeleteResult } from "mongodb";
+import { MongoClient, Db, Collection, WithId, ObjectId, InsertOneResult, DeleteResult, UpdateResult } from "mongodb";
 import { User } from "../models/user.js";
 // Vet inte varför, men var tvungen att ha detta för att det skulle fungera.
 import dotenv from "dotenv";
@@ -52,4 +52,15 @@ async function deleteOneUser(userId: ObjectId): Promise<ObjectId | null> {
     return userId; 
 }
 
-export { connectToDatabaseFindUsers, getAllUsers, getOneUser, insertOneUser, deleteOneUser};
+//  Uppdaterar en befintlig keps.. vrf har jag skrivit hatt överallt?
+async function updateOneUser(id: string, updatedUser: User): Promise<any> {
+    const col = await connectToDatabaseFindUsers();
+    const result: UpdateResult<User> = await col.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedUser }
+    );
+
+    return result;
+}
+
+export { connectToDatabaseFindUsers, getAllUsers, getOneUser, insertOneUser, deleteOneUser, updateOneUser };
