@@ -1,25 +1,71 @@
-import { Db, ObjectId } from 'mongodb';
-import { Cart } from '../models/cart.js';
-import { connectDB } from '../data/db.js';
+import {
+    MongoClient,
+    Db,
+    Collection,
+    WithId,
+    ObjectId,
+    InsertOneResult,
+    DeleteResult,
+    UpdateResult,
+} from "mongodb";
+import { Cart } from "../models/cart-model.js";
+import dotenv from "dotenv";
 
-export const findCartByUserId = async (userId: ObjectId) => {
-    const db: Db = await connectDB();
-    return db.collection('carts').findOne({ userId });
-};
+dotenv.config();
 
-export const createCart = async (userId: ObjectId, productId: ObjectId, amount: number) => {
-    const db: Db = await connectDB();
-    const newCart: Cart = {
-        _id: new ObjectId(), // Ny ObjectId
-        userId,
-        items: [{ productId, amount }] // Items är nu en array av CartItem
-    };
-    await db.collection('carts').insertOne(newCart);
-    return newCart;
-};
+const con: string | undefined = process.env.CONNECTION_STRING;
 
-export const updateCartItems = async (userId: ObjectId, items: Cart['items']) => {
-    const db: Db = await connectDB();
-    await db.collection('carts').updateOne({ userId }, { $set: { items } });
-    return findCartByUserId(userId);
+async function connectToDatabase(): Promise<Collection<Cart>> {
+    if (!con) {
+        console.log("No connection string, check your .env file!");
+        throw new Error("No connection string");
+    }
+
+    const client: MongoClient = await MongoClient.connect(con);
+    const db: Db = await client.db("webshop");
+    return db.collection<Cart>("carts");
+}
+
+// Hämta alla carts
+async function getAllCarts(): Promise<WithId<Cart>[]> {
+    const col = await connectToDatabase();
+    return col.find({}).toArray();
+}
+
+// hämta en cart baserat på userId
+async function getOneCart(userId: string): Promise<WithId<Cart> | null> {
+    const col = await connectToDatabase();
+    return col.findOne({ userId: new ObjectId(userId) });
+}
+
+// ny cart
+async function insertOneCart(cart: Cart): Promise<ObjectId | null> {
+    const col = await connectToDatabase();
+    const result: InsertOneResult<Cart> = await col.insertOne(cart);
+    return result.acknowledged ? result.insertedId : null;
+}
+
+// ta bort en cart
+async function deleteOneCart(userId: ObjectId): Promise<ObjectId | null> {
+    const col = await connectToDatabase();
+    const result: DeleteResult = await col.deleteOne({ userId });
+    return userId;
+}
+
+// uppdatera en befintlig cart
+async function updateOneCart(userId: string, updatedCart: Cart): Promise<any> {
+    const col = await connectToDatabase();
+    const result: UpdateResult<Cart> = await col.updateOne(
+        { userId: new ObjectId(userId) },
+        { $set: updatedCart }
+    );
+    return result.modifiedCount > 0 ? userId : null;
+}
+
+export {
+    getAllCarts,
+    getOneCart,
+    insertOneCart,
+    deleteOneCart,
+    updateOneCart,
 };

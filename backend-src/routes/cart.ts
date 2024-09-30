@@ -1,123 +1,97 @@
-import { Router, Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
-import { connectDB } from '../data/db.js';
-import { CartItem } from '../models/cart.js'; // Importera CartItem
+import express, { Request, Response, Router } from "express";
+import { Cart } from "../models/cart-model.js"; 
+import {
+    getAllCarts,
+    getOneCart,
+    insertOneCart,
+    deleteOneCart,
+    updateOneCart,
+} from "../database/cart.js"; 
+import { ObjectId, WithId } from "mongodb";
 
-const router = Router();
+export const router: Router = express.Router();
 
-router.get('/:userId', async (req: Request, res: Response) => {
-    const userId = new ObjectId(req.params.userId);
-
+// GET alla carts
+router.get("/", async (req: Request, res: Response<WithId<Cart>[]>) => {
     try {
-        const db = await connectDB();
-        const cart = await db.collection('carts').findOne({ userId });
-
-        if (!cart) {
-            return res.status(404).json({ error: 'Cart not found' });
-        }
-
-        res.status(200).json(cart);
+        const allCarts: WithId<Cart>[] = await getAllCarts();
+        res.send(allCarts);
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        console.error("Error fetching carts:", error);
+        res.sendStatus(500);
     }
 });
 
-router.post('/', async (req: Request, res: Response) => {
-    const { userId, productId, amount } = req.body; 
+// GET specifik cart - userId
+router.get("/:userId", async (req: Request, res: Response<WithId<Cart> | null>) => {
+    const userId: string = req.params.userId;
 
     try {
-        const db = await connectDB();
-        const newCart = {
-            userId: new ObjectId(userId),  
-            items: [{ productId: new ObjectId(productId), amount }] // Items är nu en array av CartItem
-        };
-
-        const result = await db.collection('carts').insertOne(newCart);
-        const createdCart = await db.collection('carts').findOne({ _id: result.insertedId });
-
-        res.status(201).json({ message: 'Cart created', cart: createdCart });
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-router.put('/increase/:userId/:productId', async (req: Request, res: Response) => {
-    const userId = new ObjectId(req.params.userId);
-    const productId = new ObjectId(req.params.productId);
-
-    try {
-        const db = await connectDB();
-        const cart = await db.collection('carts').findOne({ userId });
-
-        if (!cart) {
-            return res.status(404).json({ error: 'Cart not found' });
-        }
-
-        const productInCart = cart.items.find((item: CartItem) => item.productId.equals(productId)); // Ange typ
-
-        if (productInCart) {
-            productInCart.amount += 1;
+        const cart = await getOneCart(userId);
+        if (cart) {
+            res.send(cart);
         } else {
-            cart.items.push({ productId, amount: 1 });
+            res.sendStatus(404);
         }
-
-        await db.collection('carts').updateOne({ userId }, { $set: { items: cart.items } });
-        res.status(200).json(cart);
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        console.error("Error fetching cart:", error);
+        res.sendStatus(500);
     }
 });
 
-router.put('/decrease/:userId/:productId', async (req: Request, res: Response) => {
-    const userId = new ObjectId(req.params.userId);
-    const productId = new ObjectId(req.params.productId);
+// POST en ny cart
+router.post("/", async (req: Request, res: Response) => {
+    const newCart: Cart = req.body;
 
     try {
-        const db = await connectDB();
-        const cart = await db.collection('carts').findOne({ userId });
-
-        if (!cart) return res.status(404).json({ error: 'Cart not found' });
-
-        const productInCart = cart.items.find((item: CartItem) => item.productId.equals(productId)); // Ange typ
-        
-        if (productInCart) {
-            productInCart.amount -= 1;
-
-            if (productInCart.amount < 1) {
-                return res.status(400).json({ error: 'Amount must be greater than 0' });
-            }
-
-            await db.collection('carts').updateOne({ userId }, { $set: { items: cart.items } });
-            res.status(200).json(cart);
+        const insertedId = await insertOneCart(newCart);
+        if (insertedId) {
+            res.status(201).send({ id: insertedId });
         } else {
-            res.status(404).json({ error: 'Product not found in cart' });
+            res.sendStatus(400);
         }
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        console.error("Error inserting cart:", error);
+        res.sendStatus(500);
     }
 });
 
-router.delete('/remove/:userId/:productId', async (req: Request, res: Response) => {
-    const userId = new ObjectId(req.params.userId);
-    const productId = new ObjectId(req.params.productId);
+// DELETE en cart baserat på userId
+router.delete("/:userId", async (req: Request, res: Response) => {
+    const userId: string = req.params.userId;
 
     try {
-        const db = await connectDB();
-        const cart = await db.collection('carts').findOne({ userId });
+        if (!ObjectId.isValid(userId)) {
+            return res.sendStatus(400);
+        }
 
-        if (!cart) return res.status(404).json({ error: 'Cart not found' });
-
-        const productIndex = cart.items.findIndex((item: CartItem) => item.productId.equals(productId)); // Ange typ
-
-        if (productIndex !== -1) {
-            cart.items.splice(productIndex, 1);
-            await db.collection('carts').updateOne({ userId }, { $set: { items: cart.items } });
-            return res.status(200).json({ message: 'Product removed from cart' });
+        const deletedId = await deleteOneCart(new ObjectId(userId));
+        if (deletedId) {
+            res.sendStatus(204);
         } else {
-            return res.status(404).json({ error: 'Product not found in cart' });
+            res.sendStatus(404);
         }
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        console.error("Error deleting cart:", error);
+        res.sendStatus(500);
+    }
+});
+
+// PUT uppdatera en befintlig cart  baserad på userId
+router.put("/:userId", async (req: Request, res: Response) => {
+    const updatedCart: Cart = req.body;
+    const userId: string = req.params.userId;
+
+    try {
+        const updatedId = await updateOneCart(userId, updatedCart);
+        if (updatedId) {
+            res.status(200).send({ id: updatedId });
+        } else {
+            res.sendStatus(400);
+        }
+    } catch (error) {
+        console.error("Error updating cart:", error);
+        res.sendStatus(500);
     }
 });
 
