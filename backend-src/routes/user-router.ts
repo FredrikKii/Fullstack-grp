@@ -6,6 +6,7 @@ import {
     insertOneUser,
     deleteOneUser,
     updateOneUser,
+	searchUsers,
 } from "../database/users.js";
 import { ObjectId, WithId } from "mongodb";
 
@@ -15,6 +16,23 @@ export const router: Router = express.Router();
 router.get("/", async (req: Request, res: Response<WithId<User>[]>) => {
     const allUsers: WithId<User>[] = await getAllUsers();
     res.send(allUsers);
+});
+
+// Sök upp en användare
+router.get("/search", async (req: Request, res: Response) => {
+    const name: string = req.query.q as string;
+    console.log("Searched name: " + name);
+    try {
+        const user = await searchUsers(name);
+        if (user) {
+            res.send(user);
+        } else {
+            res.sendStatus(404);
+        }
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
 });
 
 // Hämtar ut en user, använd user-id .
