@@ -1,9 +1,9 @@
-import { ObjectId } from "mongodb";
+// import { ObjectId } from "mongodb";
 
-export interface CartItem {
-    productId: ObjectId;
-    amount: number;
-}
+// export interface CartItem {
+//     productId: ObjectId;
+//     amount: number;
+// }
 
 // export interface Cart {
 //     _id: ObjectId;
@@ -12,8 +12,7 @@ export interface CartItem {
 // }
 
 export interface Cart {
-    _id: ObjectId;
-    userId: number;
-    productId: number;
+    userId: string;
+    productId: string;
     amount: number;
 }
