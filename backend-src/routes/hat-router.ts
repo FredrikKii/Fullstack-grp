@@ -6,6 +6,7 @@ import {
     insertOneHat,
     deleteOneHat,
     updateOneHat,
+    searchHats,
 } from "../database/hats.js";
 import { ObjectId, WithId } from "mongodb";
 
@@ -15,6 +16,23 @@ export const router: Router = express.Router();
 router.get("/", async (req: Request, res: Response<WithId<Hat>[]>) => {
     const allUsers: WithId<Hat>[] = await getAllHats();
     res.send(allUsers);
+});
+
+// Sök upp en hatt/ användare
+router.get("/search", async (req: Request, res: Response) => {
+    const name: string = req.query.q as string;
+    console.log("Searched name: " + name);
+    try {
+        const hats = await searchHats(name);
+        if (hats) {
+            res.send(hats);
+        } else {
+            res.sendStatus(404);
+        }
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
 });
 
 // Hämtar ut en hatt, använd hattnamnet .

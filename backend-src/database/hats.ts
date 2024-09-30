@@ -68,7 +68,14 @@ async function updateOneHat(id: string, updatedHat: Hat): Promise<any> {
         { _id: new ObjectId(id) },
         { $set: updatedHat }
     );
-
+    return result;
+}
+// Søker efter en befintlig text
+async function searchHats(name: string): Promise<WithId<Hat>[]> {
+    const col = await connectToDatabaseFindHats();
+    const result: WithId<Hat>[] = await col
+        .find({ name: { $regex: name, $options: "i" } })
+        .toArray();
     return result;
 }
 
@@ -79,4 +86,5 @@ export {
     insertOneHat,
     deleteOneHat,
     updateOneHat,
+    searchHats,
 };
