@@ -6,13 +6,14 @@ import {
     insertOneUser,
     deleteOneUser,
     updateOneUser,
-	searchUsers,
+    searchUsers,
 } from "../database/users.js";
 import { ObjectId, WithId } from "mongodb";
+import { validateUser, validateSearchQuery } from "../validation/validation.js";
 
 export const router: Router = express.Router();
 
-// GET x2, POST, PUT, DELETE
+// Hämta alla användare
 router.get("/", async (req: Request, res: Response<WithId<User>[]>) => {
     const allUsers: WithId<User>[] = await getAllUsers();
     res.send(allUsers);
@@ -20,14 +21,18 @@ router.get("/", async (req: Request, res: Response<WithId<User>[]>) => {
 
 // Sök upp en användare
 router.get("/search", async (req: Request, res: Response) => {
+    const { error } = validateSearchQuery(req.query.q);
+    if (error) {
+        return res.status(400).send(error.details[0].message); 
+    }
+
     const name: string = req.query.q as string;
-    console.log("Searched name: " + name);
     try {
-        const user = await searchUsers(name);
-        if (user) {
-            res.send(user);
+        const users = await searchUsers(name);
+        if (users.length > 0) {
+            res.send(users);
         } else {
-            res.sendStatus(404);
+            res.sendStatus(404); 
         }
     } catch (error) {
         console.error(error);
@@ -35,16 +40,19 @@ router.get("/search", async (req: Request, res: Response) => {
     }
 });
 
-// Hämtar ut en user, använd user-id .
+// Hämta en specifik användare
 router.get("/:id", async (req: Request, res: Response<WithId<User> | null>) => {
     const id: string = req.params.id;
-    console.log("ID is: " + id);
+    if (!ObjectId.isValid(id)) {
+        return res.sendStatus(400); 
+    }
+
     try {
         const user = await getOneUser(id);
         if (user) {
             res.send(user);
         } else {
-            res.sendStatus(404);
+            res.sendStatus(404); 
         }
     } catch (error) {
         console.error(error);
@@ -52,40 +60,40 @@ router.get("/:id", async (req: Request, res: Response<WithId<User> | null>) => {
     }
 });
 
-// Lägger till user
+// Lägga till en användare
 router.post("/", async (req: Request, res: Response) => {
-    const newUser: User = req.body;
-    console.log("New user data received:", newUser);
+    const { error } = validateUser(req.body);
+    if (error) {
+        return res.status(400).send(error.details[0].message); 
+    }
 
+    const newUser: User = req.body;
     try {
         const insertedId = await insertOneUser(newUser);
         if (insertedId) {
             res.status(201).send({ id: insertedId });
         } else {
-            res.sendStatus(400);
+            res.sendStatus(400); 
         }
     } catch (error) {
-        console.error("Error inserrting:", error);
+        console.error("Error inserting:", error);
         res.sendStatus(500);
     }
 });
 
-// Tar bort user
+// Ta bort en användare
 router.delete("/:id", async (req: Request, res: Response) => {
     const userId: string = req.params.id;
-    console.log("Request to delete hat with ID:", userId);
+    if (!ObjectId.isValid(userId)) {
+        return res.sendStatus(400); 
+    }
 
     try {
-        if (!ObjectId.isValid(userId)) {
-            return res.sendStatus(400);
-        }
-
         const deletedId = await deleteOneUser(new ObjectId(userId));
-
         if (deletedId) {
             res.sendStatus(204);
         } else {
-            res.sendStatus(404);
+            res.sendStatus(404); 
         }
     } catch (error) {
         console.error("Error deleting user:", error);
@@ -93,25 +101,28 @@ router.delete("/:id", async (req: Request, res: Response) => {
     }
 });
 
-// Uppdaterar en befintlig user
+// Uppdatera en befintlig användare
 router.put("/:id", async (req: Request, res: Response) => {
-    // Detta är vad användaren matar in i body:
+    const { error } = validateUser(req.body);
+    if (error) {
+        return res.status(400).send(error.details[0].message); 
+    }
+
     const updatedUser: User = req.body;
-
-    // Detta är vilken användaren vill ändra
     const id: string = req.params.id;
-
-    console.log("Updated user data received:", updatedUser);
+    if (!ObjectId.isValid(id)) {
+        return res.sendStatus(400); 
+    }
 
     try {
-        const insertedId = await updateOneUser(id, updatedUser);
-        if (insertedId) {
-            res.status(201).send({ id: insertedId });
+        const result = await updateOneUser(id, updatedUser);
+        if (result.modifiedCount > 0) {
+            res.status(200).send({ id });
         } else {
-            res.sendStatus(400);
+            res.sendStatus(404); 
         }
     } catch (error) {
-        console.error("Error inserrting:", error);
+        console.error("Error updating:", error);
         res.sendStatus(500);
     }
 });
