@@ -1,6 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from "express";
-import { router } from "./routes/users.js";
-import { router as hatsRouter } from "./routes/hats.js";
+import { router } from "./routes/user-router.js";
+import { router as hatsRouter } from "./routes/hat-router.js";
 import { MongoClient, Db, Collection } from "mongodb";
 
 const app: Express = express();
