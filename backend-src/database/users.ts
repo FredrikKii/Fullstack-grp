@@ -10,6 +10,7 @@ const test: string | undefined = process.env.TEST
 console.log(test);
 
 
+
 async function getAllUsers(): Promise<WithId<User>[]> {
     if (!con) {
         console.log("No connection string, check your .env file!");
