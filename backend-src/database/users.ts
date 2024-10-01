@@ -73,6 +73,15 @@ async function updateOneUser(id: string, updatedUser: User): Promise<any> {
     return result;
 }
 
+// Söker efter en befintlig text
+async function searchUsers(name: string): Promise<WithId<User>[]> {
+    const col = await connectToDatabaseFindUsers();
+    const result: WithId<User>[] = await col
+        .find({ name: { $regex: name, $options: "i" } })
+        .toArray();
+    return result;
+}
+
 export {
     connectToDatabaseFindUsers,
     getAllUsers,
@@ -80,4 +89,5 @@ export {
     insertOneUser,
     deleteOneUser,
     updateOneUser,
+	searchUsers,
 };
