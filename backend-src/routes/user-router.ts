@@ -60,9 +60,9 @@ router.get("/:id", async (req: Request, res: Response<WithId<User> | null>) => {
     }
 });
 
-// Lägga till en användare
+// POST: Lägga till en användare
 router.post("/", async (req: Request, res: Response) => {
-    const { error } = validateUser(req.body);
+    const { error } = validateUser(req.body); 
     if (error) {
         return res.status(400).send(error.details[0].message); 
     }
@@ -101,9 +101,9 @@ router.delete("/:id", async (req: Request, res: Response) => {
     }
 });
 
-// Uppdatera en befintlig användare
+// PUT: Uppdatera en befintlig användare
 router.put("/:id", async (req: Request, res: Response) => {
-    const { error } = validateUser(req.body);
+    const { error } = validateUser(req.body); 
     if (error) {
         return res.status(400).send(error.details[0].message); 
     }
