@@ -22,7 +22,7 @@ router.get("/", async (req: Request, res: Response<WithId<Cart>[]>) => {
     }
 });
 
-// GET specifik cart - userId
+// GET specifik cart baserat på userId
 router.get("/:userId", async (req: Request, res: Response<WithId<Cart> | null>) => {
     const userId: string = req.params.userId;
 
@@ -61,11 +61,7 @@ router.delete("/:userId", async (req: Request, res: Response) => {
     const userId: string = req.params.userId;
 
     try {
-        if (!ObjectId.isValid(userId)) {
-            return res.sendStatus(400);
-        }
-
-        const deletedId = await deleteOneCart(new ObjectId(userId));
+        const deletedId = await deleteOneCart(userId);
         if (deletedId) {
             res.sendStatus(204);
         } else {
@@ -77,7 +73,7 @@ router.delete("/:userId", async (req: Request, res: Response) => {
     }
 });
 
-// PUT uppdatera en befintlig cart  baserad på userId
+// PUT uppdatera en befintlig cart baserat på userId
 router.put("/:userId", async (req: Request, res: Response) => {
     const updatedCart: Cart = req.body;
     const userId: string = req.params.userId;

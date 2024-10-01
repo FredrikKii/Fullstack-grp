@@ -4,8 +4,16 @@ import { router as hatsRouter } from "./routes/hat-router.js";
 import cartRouter from './routes/cart.js'; 
 // import { router as searchRouter } from "./routes/search-router.js";
 import { MongoClient, Db, Collection } from "mongodb";
+import cors from 'cors';
+
 
 const app: Express = express();
+app.use(cors({
+    origin: 'http://localhost:5173', // Ange din frontend-port
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+}));
+
 app.use(express.json());
 const port = 2000;
 
