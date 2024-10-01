@@ -19,13 +19,17 @@ router.get("/", async (req: Request, res: Response<WithId<Hat>[]>) => {
     res.send(allUsers);
 });
 
-// Sök upp en hatt/ användare
+// Sök upp en hatt
 router.get("/search", async (req: Request, res: Response) => {
+    const { error } = validateSearchQuery(req.query.q);
+    if (error) {
+        return res.status(400).send(error.details[0].message);
+    }
+
     const name: string = req.query.q as string;
-    console.log("Searched name: " + name);
     try {
         const hats = await searchHats(name);
-        if (hats) {
+        if (hats.length > 0) {
             res.send(hats);
         } else {
             res.sendStatus(404);
@@ -55,9 +59,9 @@ router.get("/:id", async (req: Request, res: Response<WithId<Hat> | null>) => {
 
 // POST: Lägga till en hatt
 router.post("/", async (req: Request, res: Response) => {
-    const { error } = validateHat(req.body); 
+    const { error } = validateHat(req.body);
     if (error) {
-        return res.status(400).send(error.details[0].message); 
+        return res.status(400).send(error.details[0].message);
     }
 
     const newHat: Hat = req.body;
@@ -66,14 +70,13 @@ router.post("/", async (req: Request, res: Response) => {
         if (insertedId) {
             res.status(201).send({ id: insertedId });
         } else {
-            res.sendStatus(400); 
+            res.sendStatus(400);
         }
     } catch (error) {
         console.error("Error inserting:", error);
         res.sendStatus(500);
     }
 });
-
 
 // Tar bort hatt
 router.delete("/:id", async (req: Request, res: Response) => {
@@ -100,15 +103,15 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
 // PUT: Uppdatera en befintlig användare
 router.put("/:id", async (req: Request, res: Response) => {
-    const { error } = validateHat(req.body); 
+    const { error } = validateHat(req.body);
     if (error) {
-        return res.status(400).send(error.details[0].message); 
+        return res.status(400).send(error.details[0].message);
     }
 
     const updatedHat: Hat = req.body;
     const id: string = req.params.id;
     if (!ObjectId.isValid(id)) {
-        return res.sendStatus(400); 
+        return res.sendStatus(400);
     }
 
     try {
@@ -116,7 +119,7 @@ router.put("/:id", async (req: Request, res: Response) => {
         if (result.modifiedCount > 0) {
             res.status(200).send({ id });
         } else {
-            res.sendStatus(404); 
+            res.sendStatus(404);
         }
     } catch (error) {
         console.error("Error updating:", error);
