@@ -60,11 +60,11 @@ router.get("/:id", async (req: Request, res: Response<WithId<User> | null>) => {
     }
 });
 
-// Lägga till en användare
+// POST: Lägga till en användare
 router.post("/", async (req: Request, res: Response) => {
-    const { error } = validateUser(req.body);
+    const { error } = validateUser(req.body); // Validering av inkommande data
     if (error) {
-        return res.status(400).send(error.details[0].message); 
+        return res.status(400).send(error.details[0].message); // Returnera felmeddelande vid valideringsfel
     }
 
     const newUser: User = req.body;
@@ -73,7 +73,7 @@ router.post("/", async (req: Request, res: Response) => {
         if (insertedId) {
             res.status(201).send({ id: insertedId });
         } else {
-            res.sendStatus(400); 
+            res.sendStatus(400); // Hantera dåligt inmatade data
         }
     } catch (error) {
         console.error("Error inserting:", error);
@@ -101,17 +101,17 @@ router.delete("/:id", async (req: Request, res: Response) => {
     }
 });
 
-// Uppdatera en befintlig användare
+// PUT: Uppdatera en befintlig användare
 router.put("/:id", async (req: Request, res: Response) => {
-    const { error } = validateUser(req.body);
+    const { error } = validateUser(req.body); // Validering av uppdateringsdata
     if (error) {
-        return res.status(400).send(error.details[0].message); 
+        return res.status(400).send(error.details[0].message); // Returnera felmeddelande vid valideringsfel
     }
 
     const updatedUser: User = req.body;
     const id: string = req.params.id;
     if (!ObjectId.isValid(id)) {
-        return res.sendStatus(400); 
+        return res.sendStatus(400); // Kontrollera om ID är giltigt
     }
 
     try {
@@ -119,7 +119,7 @@ router.put("/:id", async (req: Request, res: Response) => {
         if (result.modifiedCount > 0) {
             res.status(200).send({ id });
         } else {
-            res.sendStatus(404); 
+            res.sendStatus(404); // Hantera när användare inte finns
         }
     } catch (error) {
         console.error("Error updating:", error);
