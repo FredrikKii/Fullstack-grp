@@ -65,7 +65,7 @@ router.delete("/:userId", async (req: Request, res: Response) => {
             return res.sendStatus(400);
         }
 
-        const deletedId = await deleteOneCart(new ObjectId(userId));
+        const deletedId = await deleteOneCart(userId);
         if (deletedId) {
             res.sendStatus(204);
         } else {

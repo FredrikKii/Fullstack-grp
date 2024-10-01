@@ -11,9 +11,9 @@
 //     items: CartItem[]; // Array of CartItem
 // }
 
-export interface Cart {
-    userId: string;
-    productId: string;
-    amount: number;
-}
+// export interface Cart {
+//     userId: string;
+//     productId: string;
+//     amount: number;
+// }
 
