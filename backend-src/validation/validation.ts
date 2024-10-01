@@ -4,7 +4,7 @@ import { User } from "../models/user-model.js";
 
 export const userSchema = Joi.object({
     name: Joi.string().min(1).max(255).required(), 
-    isAdmin: Joi.boolean().strict().required(),    
+    isAdmin: Joi.boolean().truthy("true").falsy("false").required(),
 });
 
 export const validateUser = (user: any) => {
@@ -14,3 +14,6 @@ export const validateUser = (user: any) => {
 export const validateSearchQuery = (query: any) => {
     return Joi.string().min(1).max(255).required().validate(query); 
 };
+
+
+//.truthy("true").falsy("false")

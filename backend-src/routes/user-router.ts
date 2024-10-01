@@ -62,9 +62,9 @@ router.get("/:id", async (req: Request, res: Response<WithId<User> | null>) => {
 
 // POST: Lägga till en användare
 router.post("/", async (req: Request, res: Response) => {
-    const { error } = validateUser(req.body); // Validering av inkommande data
+    const { error } = validateUser(req.body); 
     if (error) {
-        return res.status(400).send(error.details[0].message); // Returnera felmeddelande vid valideringsfel
+        return res.status(400).send(error.details[0].message); 
     }
 
     const newUser: User = req.body;
@@ -73,7 +73,7 @@ router.post("/", async (req: Request, res: Response) => {
         if (insertedId) {
             res.status(201).send({ id: insertedId });
         } else {
-            res.sendStatus(400); // Hantera dåligt inmatade data
+            res.sendStatus(400); 
         }
     } catch (error) {
         console.error("Error inserting:", error);
@@ -103,15 +103,15 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
 // PUT: Uppdatera en befintlig användare
 router.put("/:id", async (req: Request, res: Response) => {
-    const { error } = validateUser(req.body); // Validering av uppdateringsdata
+    const { error } = validateUser(req.body); 
     if (error) {
-        return res.status(400).send(error.details[0].message); // Returnera felmeddelande vid valideringsfel
+        return res.status(400).send(error.details[0].message); 
     }
 
     const updatedUser: User = req.body;
     const id: string = req.params.id;
     if (!ObjectId.isValid(id)) {
-        return res.sendStatus(400); // Kontrollera om ID är giltigt
+        return res.sendStatus(400); 
     }
 
     try {
@@ -119,7 +119,7 @@ router.put("/:id", async (req: Request, res: Response) => {
         if (result.modifiedCount > 0) {
             res.status(200).send({ id });
         } else {
-            res.sendStatus(404); // Hantera när användare inte finns
+            res.sendStatus(404); 
         }
     } catch (error) {
         console.error("Error updating:", error);
