@@ -9,6 +9,7 @@ import {
     searchHats,
 } from "../database/hats.js";
 import { ObjectId, WithId } from "mongodb";
+import { validateHat, validateSearchQuery } from "../validation/validation.js";
 
 export const router: Router = express.Router();
 
@@ -52,23 +53,27 @@ router.get("/:id", async (req: Request, res: Response<WithId<Hat> | null>) => {
     }
 });
 
-// Lägger till hatt
+// POST: Lägga till en hatt
 router.post("/", async (req: Request, res: Response) => {
-    const newHat: Hat = req.body;
-    console.log("New hat data received:", newHat);
+    const { error } = validateHat(req.body); 
+    if (error) {
+        return res.status(400).send(error.details[0].message); 
+    }
 
+    const newHat: Hat = req.body;
     try {
         const insertedId = await insertOneHat(newHat);
         if (insertedId) {
             res.status(201).send({ id: insertedId });
         } else {
-            res.sendStatus(400);
+            res.sendStatus(400); 
         }
     } catch (error) {
-        console.error("Error inserrting:", error);
+        console.error("Error inserting:", error);
         res.sendStatus(500);
     }
 });
+
 
 // Tar bort hatt
 router.delete("/:id", async (req: Request, res: Response) => {
@@ -93,25 +98,28 @@ router.delete("/:id", async (req: Request, res: Response) => {
     }
 });
 
-// Uppdaterar en befintlig keps
+// PUT: Uppdatera en befintlig användare
 router.put("/:id", async (req: Request, res: Response) => {
-    // Detta är vad användaren matar in i body:
+    const { error } = validateHat(req.body); 
+    if (error) {
+        return res.status(400).send(error.details[0].message); 
+    }
+
     const updatedHat: Hat = req.body;
-
-    // Detta är vilken användaren vill ändra
     const id: string = req.params.id;
-
-    console.log("Updated hat data received:", updatedHat);
+    if (!ObjectId.isValid(id)) {
+        return res.sendStatus(400); 
+    }
 
     try {
-        const insertedId = await updateOneHat(id, updatedHat);
-        if (insertedId) {
-            res.status(201).send({ id: insertedId });
+        const result = await updateOneHat(id, updatedHat);
+        if (result.modifiedCount > 0) {
+            res.status(200).send({ id });
         } else {
-            res.sendStatus(400);
+            res.sendStatus(404); 
         }
     } catch (error) {
-        console.error("Error inserrting:", error);
+        console.error("Error updating:", error);
         res.sendStatus(500);
     }
 });
