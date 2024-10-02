@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection } from "mongodb";
 
-// TODO: Se om vi kan ta bort detta
+// TODO: Try to fix so we dont need this
 import dotenv from "dotenv";
 dotenv.config();
 

@@ -1,21 +1,21 @@
 import express, { Request, Response, Router } from "express";
 import { Cart } from "../models/cart-model.js";
 import {
-    getAllCarts,
-    getOneCart,
-    insertOneCart,
-    deleteOneCart,
-    updateOneCart,
+    getAllCartProducts,
+    getCartProduct,
+    insertCartProduct,
+    deleteCartProduct,
+    updateCartProduct,
 } from "../database/cart.js";
 import { ObjectId, WithId } from "mongodb";
 import { validateCart } from "../validation/validation.js";
 
 export const router: Router = express.Router();
 
-// GET alla carts
+// GET: all cart products
 router.get("/", async (req: Request, res: Response<WithId<Cart>[]>) => {
     try {
-        const allCarts: WithId<Cart>[] = await getAllCarts();
+        const allCarts: WithId<Cart>[] = await getAllCartProducts();
         res.send(allCarts);
     } catch (error) {
         console.error("Error fetching carts:", error);
@@ -23,12 +23,12 @@ router.get("/", async (req: Request, res: Response<WithId<Cart>[]>) => {
     }
 });
 
-// GET specifik cart - userId
+// GET: specific cart product
 router.get("/:id", async (req: Request, res: Response<WithId<Cart> | null>) => {
     const id: string = req.params.id;
 
     try {
-        const cart = await getOneCart(id);
+        const cart = await getCartProduct(id);
         if (cart) {
             res.send(cart);
         } else {
@@ -40,7 +40,7 @@ router.get("/:id", async (req: Request, res: Response<WithId<Cart> | null>) => {
     }
 });
 
-// POST en ny cart
+// POST: add cart product
 router.post("/", async (req: Request, res: Response) => {
     const { error, value: newCart } = validateCart(req.body);
 
@@ -49,7 +49,7 @@ router.post("/", async (req: Request, res: Response) => {
     }
 
     try {
-        const insertedId = await insertOneCart(newCart);
+        const insertedId = await insertCartProduct(newCart);
         if (insertedId) {
             res.status(201).send({ id: insertedId });
         } else {
@@ -61,7 +61,7 @@ router.post("/", async (req: Request, res: Response) => {
     }
 });
 
-// DELETE en cart baserat på userId
+// DELETE: delete cart product
 router.delete("/:id", async (req: Request, res: Response) => {
     const id: string = req.params.id;
 
@@ -70,7 +70,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
             return res.sendStatus(400);
         }
 
-        const deletedId = await deleteOneCart(id);
+        const deletedId = await deleteCartProduct(id);
         if (deletedId) {
             res.sendStatus(204);
         } else {
@@ -82,7 +82,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     }
 });
 
-// PUT uppdatera en befintlig cart
+// PUT: update cart product
 router.put("/:id", async (req: Request, res: Response) => {
     const { error, value: updatedCart } = validateCart(req.body);
 
@@ -93,7 +93,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const id: string = req.params.id;
 
     try {
-        const updatedId = await updateOneCart(id, updatedCart);
+        const updatedId = await updateCartProduct(id, updatedCart);
         if (updatedId) {
             res.status(200).send({ id: updatedId });
         } else {
