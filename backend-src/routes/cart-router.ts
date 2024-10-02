@@ -8,6 +8,7 @@ import {
     updateOneCart,
 } from "../database/cart.js";
 import { ObjectId, WithId } from "mongodb";
+import { validateCart } from "../validation/validation.js";
 
 export const router: Router = express.Router();
 
@@ -41,7 +42,11 @@ router.get("/:id", async (req: Request, res: Response<WithId<Cart> | null>) => {
 
 // POST en ny cart
 router.post("/", async (req: Request, res: Response) => {
-    const newCart: Cart = req.body;
+    const { error, value: newCart } = validateCart(req.body);
+    
+    if (error) {
+        return res.status(400).send({ error: error.details[0].message });
+    }
 
     try {
         const insertedId = await insertOneCart(newCart);
@@ -55,6 +60,7 @@ router.post("/", async (req: Request, res: Response) => {
         res.sendStatus(500);
     }
 });
+
 
 // DELETE en cart baserat på userId
 router.delete("/:id", async (req: Request, res: Response) => {
@@ -79,7 +85,12 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
 // PUT uppdatera en befintlig cart
 router.put("/:id", async (req: Request, res: Response) => {
-    const updatedCart: Cart = req.body;
+    const { error, value: updatedCart } = validateCart(req.body);
+    
+    if (error) {
+        return res.status(400).send({ error: error.details[0].message });
+    }
+
     const id: string = req.params.id;
 
     try {
@@ -94,5 +105,6 @@ router.put("/:id", async (req: Request, res: Response) => {
         res.sendStatus(500);
     }
 });
+
 
 export default router;

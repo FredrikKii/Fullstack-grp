@@ -13,6 +13,17 @@ export const hatSchema = Joi.object({
     image: Joi.string().optional(),
 });
 
+export const cartSchema = Joi.object({
+    _id: Joi.any().optional(), 
+    userId: Joi.string().required(),
+    productId: Joi.string().required(),
+    amount: Joi.number().integer().min(0).required(),
+});
+
+export const validateCart = (user: any) => {
+    return cartSchema.validate(user);
+};
+
 export const validateUser = (user: any) => {
     return userSchema.validate(user);
 };
