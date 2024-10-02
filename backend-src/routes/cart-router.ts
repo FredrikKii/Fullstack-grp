@@ -1,12 +1,12 @@
 import express, { Request, Response, Router } from "express";
-import { Cart } from "../models/cart-model.js"; 
+import { Cart } from "../models/cart-model.js";
 import {
     getAllCarts,
     getOneCart,
     insertOneCart,
     deleteOneCart,
     updateOneCart,
-} from "../database/cart.js"; 
+} from "../database/cart.js";
 import { ObjectId, WithId } from "mongodb";
 
 export const router: Router = express.Router();
@@ -23,11 +23,11 @@ router.get("/", async (req: Request, res: Response<WithId<Cart>[]>) => {
 });
 
 // GET specifik cart - userId
-router.get("/:userId", async (req: Request, res: Response<WithId<Cart> | null>) => {
-    const userId: string = req.params.userId;
+router.get("/:id", async (req: Request, res: Response<WithId<Cart> | null>) => {
+    const id: string = req.params.id;
 
     try {
-        const cart = await getOneCart(userId);
+        const cart = await getOneCart(id);
         if (cart) {
             res.send(cart);
         } else {
@@ -57,15 +57,15 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // DELETE en cart baserat på userId
-router.delete("/:userId", async (req: Request, res: Response) => {
-    const userId: string = req.params.userId;
+router.delete("/:id", async (req: Request, res: Response) => {
+    const id: string = req.params.id;
 
     try {
-        if (!ObjectId.isValid(userId)) {
+        if (!ObjectId.isValid(id)) {
             return res.sendStatus(400);
         }
 
-        const deletedId = await deleteOneCart(userId);
+        const deletedId = await deleteOneCart(id);
         if (deletedId) {
             res.sendStatus(204);
         } else {
@@ -77,13 +77,13 @@ router.delete("/:userId", async (req: Request, res: Response) => {
     }
 });
 
-// PUT uppdatera en befintlig cart  baserad på userId
-router.put("/:userId", async (req: Request, res: Response) => {
+// PUT uppdatera en befintlig cart
+router.put("/:id", async (req: Request, res: Response) => {
     const updatedCart: Cart = req.body;
-    const userId: string = req.params.userId;
+    const id: string = req.params.id;
 
     try {
-        const updatedId = await updateOneCart(userId, updatedCart);
+        const updatedId = await updateOneCart(id, updatedCart);
         if (updatedId) {
             res.status(200).send({ id: updatedId });
         } else {

@@ -33,9 +33,9 @@ async function getAllCarts(): Promise<WithId<Cart>[]> {
 }
 
 // hämta en cart baserat på userId
-async function getOneCart(userId: string): Promise<WithId<Cart> | null> {
+async function getOneCart(id: string): Promise<WithId<Cart> | null> {
     const col = await connectToDatabase();
-    return col.findOne({ userId });
+    return col.findOne({ _id: new ObjectId(id) });
 }
 
 // ny cart
@@ -46,26 +46,20 @@ async function insertOneCart(cart: Cart): Promise<ObjectId | null> {
 }
 
 // ta bort en cart
-async function deleteOneCart(userId: string): Promise<string | null> {
+async function deleteOneCart(id: string): Promise<string | null> {
     const col = await connectToDatabase();
-    const result: DeleteResult = await col.deleteOne({ userId });
-    return userId;
+    const result: DeleteResult = await col.deleteOne({ id });
+    return id;
 }
 
 // uppdatera en befintlig cart
-async function updateOneCart(userId: string, updatedCart: Cart): Promise<any> {
+async function updateOneCart(id: string, updatedCart: Cart): Promise<any> {
     const col = await connectToDatabase();
     const result: UpdateResult<Cart> = await col.updateOne(
-        { userId },
+        { _id: new ObjectId(id) },
         { $set: updatedCart }
     );
-    return result.modifiedCount > 0 ? userId : null;
+    return result;
 }
 
-export {
-    getAllCarts,
-    getOneCart,
-    insertOneCart,
-    deleteOneCart,
-    updateOneCart,
-};
+export { getAllCarts, getOneCart, insertOneCart, deleteOneCart, updateOneCart };

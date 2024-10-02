@@ -40,7 +40,7 @@ router.get("/search", async (req: Request, res: Response) => {
     }
 });
 
-// Hämtar ut en hatt, använd hattnamnet .
+// Hämtar ut en hatt
 router.get("/:id", async (req: Request, res: Response<WithId<Hat> | null>) => {
     const id: string = req.params.id;
     console.log("ID is: " + id);
