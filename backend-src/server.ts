@@ -1,6 +1,7 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import { router } from "./routes/user-router.js";
 import { router as hatsRouter } from "./routes/hat-router.js";
+import cartRouter from './routes/cart-router.js'; 
 // import { router as searchRouter } from "./routes/search-router.js";
 import { MongoClient, Db, Collection } from "mongodb";
 
@@ -18,6 +19,7 @@ app.use("/", (req: Request, res: Response, next: NextFunction) => {
 
 app.use("/api/users", router);
 app.use("/api/hats", hatsRouter);
+app.use('/api/carts', cartRouter); 
 // app.use("/api/hats/search", searchRouter);
 
 // starta servern
