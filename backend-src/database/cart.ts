@@ -9,6 +9,9 @@ import {
     UpdateResult,
 } from "mongodb";
 import { Cart } from "../models/cart-model.js";
+import { User } from "../models/user-model.js";
+import { Hat } from "../models/hat-model.js";
+
 import dotenv from "dotenv";
 
 dotenv.config();

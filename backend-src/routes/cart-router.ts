@@ -43,7 +43,7 @@ router.get("/:id", async (req: Request, res: Response<WithId<Cart> | null>) => {
 // POST en ny cart
 router.post("/", async (req: Request, res: Response) => {
     const { error, value: newCart } = validateCart(req.body);
-    
+
     if (error) {
         return res.status(400).send({ error: error.details[0].message });
     }
@@ -60,7 +60,6 @@ router.post("/", async (req: Request, res: Response) => {
         res.sendStatus(500);
     }
 });
-
 
 // DELETE en cart baserat på userId
 router.delete("/:id", async (req: Request, res: Response) => {
@@ -86,7 +85,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 // PUT uppdatera en befintlig cart
 router.put("/:id", async (req: Request, res: Response) => {
     const { error, value: updatedCart } = validateCart(req.body);
-    
+
     if (error) {
         return res.status(400).send({ error: error.details[0].message });
     }
@@ -105,6 +104,5 @@ router.put("/:id", async (req: Request, res: Response) => {
         res.sendStatus(500);
     }
 });
-
 
 export default router;
