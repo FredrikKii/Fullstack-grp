@@ -1,25 +1,25 @@
 import express, { Request, Response, Router } from "express";
 import { Hat } from "../models/hat-model.js";
 import {
-    getAllHats,
-    getOneHat,
-    insertOneHat,
-    deleteOneHat,
-    updateOneHat,
-    searchHats,
+    getAllProducts,
+    getProduct,
+    insertProduct,
+    deleteProduct,
+    updateProduct,
+    searchProduct,
 } from "../database/hats.js";
 import { ObjectId, WithId } from "mongodb";
 import { validateHat, validateSearchQuery } from "../validation/validation.js";
 
 export const router: Router = express.Router();
 
-// GET x2, POST, PUT, DELETE
+// GET: get all products
 router.get("/", async (req: Request, res: Response<WithId<Hat>[]>) => {
-    const allUsers: WithId<Hat>[] = await getAllHats();
+    const allUsers: WithId<Hat>[] = await getAllProducts();
     res.send(allUsers);
 });
 
-// Sök upp en hatt
+// GET: search product
 router.get("/search", async (req: Request, res: Response) => {
     const { error } = validateSearchQuery(req.query.q);
     if (error) {
@@ -28,7 +28,7 @@ router.get("/search", async (req: Request, res: Response) => {
 
     const name: string = req.query.q as string;
     try {
-        const hats = await searchHats(name);
+        const hats = await searchProduct(name);
         if (hats.length > 0) {
             res.send(hats);
         } else {
@@ -40,12 +40,12 @@ router.get("/search", async (req: Request, res: Response) => {
     }
 });
 
-// Hämtar ut en hatt
+// GET: get specific product
 router.get("/:id", async (req: Request, res: Response<WithId<Hat> | null>) => {
     const id: string = req.params.id;
     console.log("ID is: " + id);
     try {
-        const hat = await getOneHat(id);
+        const hat = await getProduct(id);
         if (hat) {
             res.send(hat);
         } else {
@@ -57,7 +57,7 @@ router.get("/:id", async (req: Request, res: Response<WithId<Hat> | null>) => {
     }
 });
 
-// POST: Lägga till en hatt
+// POST: add product
 router.post("/", async (req: Request, res: Response) => {
     const { error } = validateHat(req.body);
     if (error) {
@@ -66,7 +66,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     const newHat: Hat = req.body;
     try {
-        const insertedId = await insertOneHat(newHat);
+        const insertedId = await insertProduct(newHat);
         if (insertedId) {
             res.status(201).send({ id: insertedId });
         } else {
@@ -78,7 +78,7 @@ router.post("/", async (req: Request, res: Response) => {
     }
 });
 
-// Tar bort hatt
+// DELETE: delete product
 router.delete("/:id", async (req: Request, res: Response) => {
     const hatId: string = req.params.id;
     console.log("Request to delete hat with ID:", hatId);
@@ -88,7 +88,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
             return res.sendStatus(400);
         }
 
-        const deletedId = await deleteOneHat(new ObjectId(hatId));
+        const deletedId = await deleteProduct(new ObjectId(hatId));
 
         if (deletedId) {
             res.sendStatus(204);
@@ -101,7 +101,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     }
 });
 
-// PUT: Uppdatera en befintlig användare
+// PUT: update product
 router.put("/:id", async (req: Request, res: Response) => {
     const { error } = validateHat(req.body);
     if (error) {
@@ -115,7 +115,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     }
 
     try {
-        const result = await updateOneHat(id, updatedHat);
+        const result = await updateProduct(id, updatedHat);
         if (result.modifiedCount > 0) {
             res.status(200).send({ id });
         } else {
