@@ -42,20 +42,27 @@ router.get("/:id", async (req: Request, res: Response<WithId<Cart> | null>) => {
 
 // POST: add cart product
 router.post("/", async (req: Request, res: Response) => {
-    const { error, value: newCart } = validateCart(req.body);
+    const { error } = validateCart(req.body);
 
     if (error) {
         return res.status(400).send({ error: error.details[0].message });
     }
+    const newCartProduct: Cart = req.body;
 
     try {
-        const insertedId = await insertCartProduct(newCart);
+        const insertedId = await insertCartProduct(newCartProduct);
         if (insertedId) {
             res.status(201).send({ id: insertedId });
         } else {
             res.sendStatus(400);
         }
-    } catch (error) {
+    } catch (error: any) {
+        if (
+            error.message === "User does not exist." ||
+            error.message === "Product does not exist."
+        ) {
+            return res.status(404).send({ error: error.message });
+        }
         console.error("Error inserting cart:", error);
         res.sendStatus(500);
     }
@@ -63,14 +70,14 @@ router.post("/", async (req: Request, res: Response) => {
 
 // DELETE: delete cart product
 router.delete("/:id", async (req: Request, res: Response) => {
-    const id: string = req.params.id;
+    const cartItemid: string = req.params.id;
 
     try {
-        if (!ObjectId.isValid(id)) {
+        if (!ObjectId.isValid(cartItemid)) {
             return res.sendStatus(400);
         }
 
-        const deletedId = await deleteCartProduct(id);
+        const deletedId = await deleteCartProduct(new ObjectId(cartItemid));
         if (deletedId) {
             res.sendStatus(204);
         } else {
