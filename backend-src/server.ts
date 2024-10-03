@@ -4,9 +4,11 @@ import { router as hatsRouter } from "./routes/hat-router.js";
 import cartRouter from './routes/cart-router.js'; 
 // import { router as searchRouter } from "./routes/search-router.js";
 import { MongoClient, Db, Collection } from "mongodb";
+import cors from 'cors';
 
 const app: Express = express();
 app.use(express.json());
+app.use(cors());
 const port = 2000;
 
 // middleware
