@@ -1,0 +1,88 @@
+.appContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start; 
+    width: 100%;
+    margin: 0;
+    padding: 0; 
+  }
+  
+  .headerImageContainer {
+    width: 100%; 
+    display: flex; 
+    justify-content: center; 
+  }
+  
+  img {
+    max-width: 100%; 
+    height: auto; 
+    display: block; 
+  }
+  
+  body {
+    margin: 0; 
+    padding: 0; 
+    font-family: Arial, sans-serif; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start; 
+    min-height: 100vh; 
+    background-color: #333333;
+  }
+  
+  .getButton {
+    margin-top: 20px;
+    width: 300px;
+    height: 50px;
+    flex-shrink: 0;
+    filter: drop-shadow(0px 11px 4px rgba(0, 0, 0, 0.25));
+    background-color: #BD89FF;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    outline: none;
+    border: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+svg {
+    margin-top: -5px;
+}
+.getButton:hover {
+    background-color: #ac6dff;
+    outline: none;
+    /* border: 2px solid orange; */
+}
+
+.getButton:active {
+    background-color: #BD89FF;
+    outline: none; 
+    transform: translateY(2px); /* Flytta ner knappen */
+    filter: drop-shadow(0px 8px 4px rgba(0, 0, 0, 0.25));
+}
+.getButton:focus {
+    outline: none;
+}
+ p {
+    color: white;
+ }
+
+ .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px; /* Avstånd mellan korten */
+  }
+  
+  .product-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  
+  .product-card img {
+    max-width: 100%;
+    height: auto;
+  }
