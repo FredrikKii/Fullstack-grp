@@ -47,7 +47,18 @@ router.post("/", async (req: Request, res: Response) => {
     if (error) {
         return res.status(400).send({ error: error.details[0].message });
     }
+
     const newCartProduct: Cart = req.body;
+
+    if (!ObjectId.isValid(newCartProduct.userId)) {
+        return res.status(400).send({ error: "This is not a valid userID." });
+    }
+
+    if (!ObjectId.isValid(newCartProduct.productId)) {
+        return res
+            .status(400)
+            .send({ error: "This is not an valid productID" });
+    }
 
     try {
         const insertedId = await insertCartProduct(newCartProduct);
@@ -58,8 +69,8 @@ router.post("/", async (req: Request, res: Response) => {
         }
     } catch (error: any) {
         if (
-            error.message === "User does not exist." ||
-            error.message === "Product does not exist."
+            error.message === "This is not a valid userID." ||
+            error.message === "This is not an valid productID"
         ) {
             return res.status(404).send({ error: error.message });
         }

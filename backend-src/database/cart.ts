@@ -11,16 +11,17 @@ import { Hat } from "../models/hat-model.js";
 
 import { connectToDatabase } from "../data/connect.js";
 
+// Defines the collections
 const cartCollection = await connectToDatabase<Cart>("carts");
 const userCollection = await connectToDatabase<User>("user");
 const productCollection = await connectToDatabase<Hat>("hats");
 
-// Hämta alla carts
+// Get all carts
 async function getAllCartProducts(): Promise<WithId<Cart>[]> {
     return cartCollection.find({}).toArray();
 }
 
-// hämta en cart baserat på userId
+// Get a specific cart
 async function getCartProduct(id: string): Promise<WithId<Cart> | null> {
     return cartCollection.findOne({ _id: new ObjectId(id) });
 }
@@ -43,7 +44,7 @@ async function insertCartProduct(cart: Cart): Promise<ObjectId | null> {
     return result.acknowledged ? result.insertedId : null;
 }
 
-// ta bort en cart
+// Deletes a cart
 async function deleteCartProduct(
     cartItemId: ObjectId
 ): Promise<ObjectId | null> {
@@ -53,7 +54,7 @@ async function deleteCartProduct(
     return cartItemId;
 }
 
-// uppdatera en befintlig cart
+// Update a cart
 async function updateCartProduct(id: string, updatedCart: Cart): Promise<any> {
     const result: UpdateResult<Cart> = await cartCollection.updateOne(
         { _id: new ObjectId(id) },
