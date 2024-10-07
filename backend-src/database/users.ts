@@ -1,7 +1,4 @@
 import {
-    MongoClient,
-    Db,
-    Collection,
     WithId,
     ObjectId,
     InsertOneResult,
@@ -9,44 +6,28 @@ import {
     UpdateResult,
 } from "mongodb";
 import { User } from "../models/user-model.js";
-// Vet inte varför, men var tvungen att ha detta för att det skulle fungera.
-import dotenv from "dotenv";
-dotenv.config();
+import { connectToDatabase } from "../data/connect.js";
 
-const con: string | undefined = process.env.CONNECTION_STRING;
-// const test: string | undefined = process.env.TEST;
+// Defines the collection [users]
+const usersCollection = await connectToDatabase<User>("user");
 
-async function connectToDatabaseFindUsers(): Promise<Collection<User>> {
-    if (!con) {
-        console.log("No connection string, check your .env file!");
-        throw new Error("No connection string");
-    }
-
-    const client: MongoClient = await MongoClient.connect(con);
-    const db: Db = await client.db("webshop");
-    return db.collection<User>("user");
-}
-
-// Hitta alla users
+// Find all users
 async function getAllUsers(): Promise<WithId<User>[]> {
-    const col = await connectToDatabaseFindUsers();
-    const result: WithId<User>[] = await col.find({}).toArray();
+    const result: WithId<User>[] = await usersCollection.find({}).toArray();
     return result;
 }
 
-// Hitta en user
-async function getOneUser(id: string): Promise<WithId<User> | null> {
-    const col = await connectToDatabaseFindUsers();
-    const result: WithId<User> | null = await col.findOne({
+// Find a specific user
+async function getUser(id: string): Promise<WithId<User> | null> {
+    const result: WithId<User> | null = await usersCollection.findOne({
         _id: new ObjectId(id),
     });
     return result;
 }
 
-// Lägg till user
-async function insertOneUser(user: User): Promise<ObjectId | null> {
-    const col = await connectToDatabaseFindUsers();
-    const result: InsertOneResult<User> = await col.insertOne(user);
+// Add new user
+async function insertUser(user: User): Promise<ObjectId | null> {
+    const result: InsertOneResult<User> = await usersCollection.insertOne(user);
     if (!result.acknowledged) {
         console.log("Could not insert user!");
         return null;
@@ -54,18 +35,17 @@ async function insertOneUser(user: User): Promise<ObjectId | null> {
     return result.insertedId;
 }
 
-// Ta bort en user
-async function deleteOneUser(userId: ObjectId): Promise<ObjectId | null> {
-    const col = await connectToDatabaseFindUsers();
-    const result: DeleteResult = await col.deleteOne({ _id: userId });
-
+// // Delete user
+async function deleteUser(userId: ObjectId): Promise<ObjectId | null> {
+    const result: DeleteResult = await usersCollection.deleteOne({
+        _id: userId,
+    });
     return userId;
 }
 
-//  Uppdaterar en befintlig keps.. vrf har jag skrivit hatt överallt?
-async function updateOneUser(id: string, updatedUser: User): Promise<any> {
-    const col = await connectToDatabaseFindUsers();
-    const result: UpdateResult<User> = await col.updateOne(
+// Update user
+async function updateUser(id: string, updatedUser: User): Promise<any> {
+    const result: UpdateResult<User> = await usersCollection.updateOne(
         { _id: new ObjectId(id) },
         { $set: updatedUser }
     );
@@ -73,21 +53,12 @@ async function updateOneUser(id: string, updatedUser: User): Promise<any> {
     return result;
 }
 
-// Söker efter en befintlig text
-async function searchUsers(name: string): Promise<WithId<User>[]> {
-    const col = await connectToDatabaseFindUsers();
-    const result: WithId<User>[] = await col
+// Search user
+async function searchUser(name: string): Promise<WithId<User>[]> {
+    const result: WithId<User>[] = await usersCollection
         .find({ name: { $regex: name, $options: "i" } })
         .toArray();
     return result;
 }
 
-export {
-    connectToDatabaseFindUsers,
-    getAllUsers,
-    getOneUser,
-    insertOneUser,
-    deleteOneUser,
-    updateOneUser,
-	searchUsers,
-};
+export { getAllUsers, getUser, insertUser, deleteUser, updateUser, searchUser };
